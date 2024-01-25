@@ -1,9 +1,10 @@
 //! Support for registering and creating XPath functions.
 
+use seahash::SeaHasher;
 use snafu::Snafu;
 use std::borrow::ToOwned;
 use std::collections::hash_map::Entry;
-use std::collections::HashMap;
+use std::hash::BuildHasherDefault;
 use std::iter;
 use std::ops::Index;
 use sxd_document::XmlChar;
@@ -11,6 +12,8 @@ use sxd_document::XmlChar;
 use crate::context;
 use crate::nodeset::Nodeset;
 use crate::{str_to_num, Value};
+
+type HashMap<K, V> = std::collections::HashMap<K, V, BuildHasherDefault<SeaHasher>>;
 
 /// Types that can be used as XPath functions.
 pub trait Function {
@@ -489,7 +492,7 @@ impl Function for Translate {
         let from = args.pop_string()?;
         let s = args.pop_string()?;
 
-        let mut replacements = HashMap::new();
+        let mut replacements = HashMap::default();
         let pairs = from
             .chars()
             .zip(to.chars().map(Some).chain(iter::repeat(None)));

@@ -1,9 +1,11 @@
 //! Support for the various types of contexts before and during XPath
 //! evaluation.
 
+use seahash::SeaHasher;
 use sxd_document::QName;
 
 use std::collections::HashMap;
+use std::hash::BuildHasherDefault;
 use std::iter;
 
 use crate::function;
@@ -11,11 +13,12 @@ use crate::nodeset::{Node, OrderedNodes};
 use crate::{OwnedQName, Value};
 
 /// A mapping of names to XPath functions.
-type Functions = HashMap<OwnedQName, Box<dyn function::Function + 'static>>;
+type Functions =
+    HashMap<OwnedQName, Box<dyn function::Function + 'static>, BuildHasherDefault<SeaHasher>>;
 /// A mapping of names to XPath variables.
-type Variables<'d> = HashMap<OwnedQName, Value<'d>>;
+type Variables<'d> = HashMap<OwnedQName, Value<'d>, BuildHasherDefault<SeaHasher>>;
 /// A mapping of namespace prefixes to namespace URIs.
-type Namespaces = HashMap<String, String>;
+type Namespaces = HashMap<String, String, BuildHasherDefault<SeaHasher>>;
 
 /// Contains the context in which XPath expressions are executed. The
 /// context contains functions, variables, and namespace mappings.

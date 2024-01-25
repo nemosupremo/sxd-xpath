@@ -1,6 +1,9 @@
 use snafu::{OptionExt, ResultExt, Snafu};
 use std::collections::HashSet;
 use std::fmt;
+use std::hash::BuildHasherDefault;
+
+use seahash::SeaHasher;
 use sxd_document::QName;
 
 use crate::axis::{Axis, AxisLike};
@@ -113,7 +116,7 @@ impl Equal {
         let left_val = self.left.evaluate(context)?;
         let right_val = self.right.evaluate(context)?;
 
-        fn str_vals(nodes: &Nodeset<'_>) -> HashSet<String> {
+        fn str_vals(nodes: &Nodeset<'_>) -> HashSet<String, BuildHasherDefault<SeaHasher>> {
             nodes.iter().map(|n| n.string_value()).collect()
         }
 

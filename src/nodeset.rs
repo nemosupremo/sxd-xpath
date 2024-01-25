@@ -2,12 +2,16 @@
 
 use std::borrow::ToOwned;
 use std::collections::hash_set;
-use std::collections::{HashMap, HashSet};
+use std::hash::BuildHasherDefault;
 use std::iter::{FromIterator, IntoIterator};
 use std::usize;
 
+use seahash::SeaHasher;
 use sxd_document::dom;
 use sxd_document::QName;
+
+type HashMap<K, V> = std::collections::HashMap<K, V, BuildHasherDefault<SeaHasher>>;
+type HashSet<T> = std::collections::HashSet<T, BuildHasherDefault<SeaHasher>>;
 
 macro_rules! unpack(
     ($enum_name:ident, {
@@ -403,7 +407,7 @@ impl<'d> DocOrder<'d> {
     fn new(doc: dom::Document<'d>) -> Self {
         let mut idx = 0;
         let mut stack: Vec<Node<'_>> = vec![doc.root().into()];
-        let mut order = HashMap::new();
+        let mut order = HashMap::default();
 
         while let Some(n) = stack.pop() {
             order.insert(n, idx);
