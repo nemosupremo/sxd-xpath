@@ -44,7 +44,7 @@ fn value_into_nodeset(v: Value<'_>) -> Result<Nodeset<'_>, Error> {
 //
 fn value_into_ordered_nodes(v: Value<'_>) -> Result<OrderedNodes<'_>, Error> {
     match v {
-        Value::Nodeset(ns) => Ok(ns.document_order().into()),
+        Value::Nodeset(ns) => Ok(ns.document_order(None).into()),
         _ => Err(Error::NotANodeset),
     }
 }

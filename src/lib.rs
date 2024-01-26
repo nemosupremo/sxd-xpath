@@ -270,7 +270,7 @@ impl<'d> Value<'d> {
                 }
             }
             String(ref val) => val.clone(),
-            Nodeset(ref ns) => match ns.document_order_first() {
+            Nodeset(ref ns) => match ns.document_order_first(None) {
                 Some(n) => n.string_value(),
                 None => "".to_owned(),
             },

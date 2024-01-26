@@ -260,7 +260,7 @@ impl Function for LocalName {
         args.at_most(1)?;
         let arg = args.pop_nodeset_or_context_node(context)?;
         let name = arg
-            .document_order_first()
+            .document_order_first(None)
             .and_then(|n| n.expanded_name())
             .map(|q| q.local_part())
             .unwrap_or("");
@@ -280,7 +280,7 @@ impl Function for NamespaceUri {
         args.at_most(1)?;
         let arg = args.pop_nodeset_or_context_node(context)?;
         let name = arg
-            .document_order_first()
+            .document_order_first(None)
             .and_then(|n| n.expanded_name())
             .and_then(|q| q.namespace_uri())
             .unwrap_or("");
@@ -300,7 +300,7 @@ impl Function for Name {
         args.at_most(1)?;
         let arg = args.pop_nodeset_or_context_node(context)?;
         let name = arg
-            .document_order_first()
+            .document_order_first(None)
             .and_then(|n| n.prefixed_name())
             .unwrap_or_else(String::new);
         Ok(Value::String(name))

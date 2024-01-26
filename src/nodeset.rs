@@ -354,7 +354,7 @@ impl<'d> Nodeset<'d> {
     /// Returns the node that occurs first in [document order]
     ///
     /// [document order]: https://www.w3.org/TR/xpath/#dt-document-order
-    pub fn document_order_first(&self) -> Option<Node<'d>> {
+    pub fn document_order_first(&self, order: Option<&DocOrder<'d>>) -> Option<Node<'d>> {
         let node = match self.nodes.iter().next() {
             Some(n) => n,
             None => return None,
@@ -364,7 +364,14 @@ impl<'d> Nodeset<'d> {
             return Some(*node);
         }
 
-        let order = DocOrder::new(node.document());
+        let doc_order: DocOrder;
+        let order = match order {
+            Some(order) => order,
+            None => {
+                doc_order = DocOrder::new(node.document());
+                &doc_order
+            }
+        };
 
         self.nodes
             .iter()
@@ -372,7 +379,7 @@ impl<'d> Nodeset<'d> {
             .cloned()
     }
 
-    pub fn document_order(&self) -> Vec<Node<'d>> {
+    pub fn document_order(&self, order: Option<&DocOrder<'d>>) -> Vec<Node<'d>> {
         let mut nodes: Vec<_> = self.iter().collect();
         if nodes.len() == 1 {
             return nodes;
@@ -383,7 +390,15 @@ impl<'d> Nodeset<'d> {
             None => return nodes,
         };
 
-        let order = DocOrder::new(doc);
+        let doc_order: DocOrder;
+        let order = match order {
+            Some(order) => order,
+            None => {
+                doc_order = DocOrder::new(doc);
+                &doc_order
+            }
+        };
+
         nodes.sort_by_key(|&n| order.order_of(n));
         nodes
     }
@@ -401,10 +416,10 @@ impl<'d> Extend<Node<'d>> for Nodeset<'d> {
 // Rebuilding this multiple times cannot possibly be performant,
 // but I want to see how widely used this is first before
 // picking an appropriate caching point.
-struct DocOrder<'d>(HashMap<Node<'d>, usize>);
+pub struct DocOrder<'d>(HashMap<Node<'d>, usize>);
 
 impl<'d> DocOrder<'d> {
-    fn new(doc: dom::Document<'d>) -> Self {
+    pub fn new(doc: dom::Document<'d>) -> Self {
         let mut idx = 0;
         let mut stack: Vec<Node<'_>> = vec![doc.root().into()];
         let mut order = HashMap::default();
@@ -424,7 +439,7 @@ impl<'d> DocOrder<'d> {
         DocOrder(order)
     }
 
-    fn order_of(&self, node: Node<'d>) -> usize {
+    pub fn order_of(&self, node: Node<'d>) -> usize {
         // See the library-level docs for rationale on this MAX
         self.0.get(&node).cloned().unwrap_or(usize::MAX)
     }
